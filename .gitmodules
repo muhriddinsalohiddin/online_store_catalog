@@ -1,0 +1,3 @@
+[submodule "online_store_proto"]
+	path = online_store_proto
+	url = git@github.com:muhriddinsalohiddin/online_store_proto.git
