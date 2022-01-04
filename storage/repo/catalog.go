@@ -7,17 +7,17 @@ import (
 // CatalogStorageI
 type CatalogStorageI interface {
 	// CRUD for Books
-	CreateBook(*pb.Book) (*pb.Book, error)
-	UpdateBook(*pb.Book) (*pb.Book, error)
-	GetBookById(*pb.GetBookByIdReq) (*pb.Book, error)
-	DeletedBookById(*pb.GetBookByIdReq) (*pb.EmptyResp, error)
-	ListBooks(*pb.ListBookReq) (*pb.ListBookResp, error)
+	CreateBook(pb.Book) (pb.Book, error)
+	UpdateBook(pb.Book) (pb.Book, error)
+	GetBookById(pb.GetBookByIdReq) (pb.Book, error)
+	DeletedBookById(pb.GetBookByIdReq) (pb.EmptyResp, error)
+	ListBooks(pb.ListBookReq) (pb.ListBookResp, error)
 	// CRUD for Authors
-	CreateAuthor(*pb.Author) (*pb.Author, error)
-	UpdateAuthor(*pb.Author) (*pb.Author, error)
-	GetAuthorById(*pb.GetAuthorByIdReq) (*pb.Author, error)
-	DeleteAuthorById(*pb.GetAuthorByIdReq) (*pb.EmptyResp, error)
-	ListAuthors(*pb.ListAuthorReq) (*pb.ListAuthorResp, error)
+	CreateAuthor(pb.Author) (pb.Author, error)
+	UpdateAuthor(pb.Author) (pb.Author, error)
+	GetAuthorById(pb.GetAuthorByIdReq) (pb.Author, error)
+	DeleteAuthorById(pb.GetAuthorByIdReq) (pb.EmptyResp, error)
+	ListAuthors(pb.ListAuthorReq) (pb.ListAuthorResp, error)
 	// CRUD for Categories
 	CreateCategory(pb.Category) (pb.Category, error)
 	UpdateCategory(pb.Category) (pb.Category, error)
