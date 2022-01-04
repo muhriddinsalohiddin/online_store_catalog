@@ -1,7 +1,7 @@
 package grpcClient
 
 import (
-	"github.com/muhriddinsalohiddin/todo2/config"
+	"github.com/muhriddinsalohiddin/online_store_catalog/config"
 )
 
 // IGrpcClient ...
