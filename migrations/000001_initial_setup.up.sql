@@ -18,7 +18,7 @@ CREATE TABLE books (
 CREATE TABLE categories (
 	id VARCHAR(64) NOT NULL PRIMARY KEY,
 	name VARCHAR(128) NOT NULL,
-	parent_id VARCHAR(64) NOT NULL,
+	parent_id VARCHAR(64),
 	created_at timestamp,
 	updated_at timestamp,
 	deleated_at timestamp
