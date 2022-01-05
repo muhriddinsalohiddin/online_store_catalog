@@ -16,7 +16,7 @@ type CatalogStorageI interface {
 	CreateAuthor(pb.Author) (pb.Author, error)
 	UpdateAuthor(pb.Author) (pb.Author, error)
 	GetAuthorById(pb.GetAuthorByIdReq) (pb.Author, error)
-	DeleteAuthorById(pb.GetAuthorByIdReq) (pb.EmptyResp, error)
+	DeleteAuthorById(pb.GetAuthorByIdReq) (error)
 	ListAuthors(pb.ListAuthorReq) (pb.ListAuthorResp, error)
 	// CRUD for Categories
 	CreateCategory(pb.Category) (pb.Category, error)
