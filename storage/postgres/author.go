@@ -8,7 +8,6 @@ import (
 )
 
 func (c *catalogRepo) CreateAuthor(in pb.Author) (pb.Author, error) {
-
 	err := c.db.QueryRow(`
 		INSERT INTO authors (id, name, created_at, updated_at)
 		VALUES ($1,$2,$3,$4) RETURNING id`,
@@ -16,13 +15,11 @@ func (c *catalogRepo) CreateAuthor(in pb.Author) (pb.Author, error) {
 		in.Name,
 		time.Now().UTC(),
 		time.Now().UTC()).Scan(&in.Id)
-
 	if err != nil {
 		return pb.Author{}, err
 	}
 
 	author, err := c.GetAuthorById(pb.GetAuthorByIdReq{Id: in.Id})
-
 	if err != nil {
 		return pb.Author{}, err
 	}
@@ -30,7 +27,6 @@ func (c *catalogRepo) CreateAuthor(in pb.Author) (pb.Author, error) {
 }
 
 func (c *catalogRepo) UpdateAuthor(in pb.Author) (pb.Author, error) {
-	
 	result, err := c.db.Exec(`
 		UPDATE authors
 		SET name=$1,
@@ -47,9 +43,8 @@ func (c *catalogRepo) UpdateAuthor(in pb.Author) (pb.Author, error) {
 	if i, _ := result.RowsAffected(); i == 0 {
 		return pb.Author{}, sql.ErrNoRows
 	}
-	
+
 	author, err := c.GetAuthorById(pb.GetAuthorByIdReq{Id: in.Id})
-	
 	if err != nil {
 		return pb.Author{}, err
 	}
@@ -58,7 +53,6 @@ func (c *catalogRepo) UpdateAuthor(in pb.Author) (pb.Author, error) {
 }
 
 func (c *catalogRepo) GetAuthorById(in pb.GetAuthorByIdReq) (pb.Author, error) {
-
 	var author pb.Author
 
 	err := c.db.QueryRow(`
@@ -74,7 +68,6 @@ func (c *catalogRepo) GetAuthorById(in pb.GetAuthorByIdReq) (pb.Author, error) {
 		&author.CreatedAt,
 		&author.UpdatedAt,
 	)
-
 	if err != nil {
 		return pb.Author{}, err
 	}
@@ -82,7 +75,7 @@ func (c *catalogRepo) GetAuthorById(in pb.GetAuthorByIdReq) (pb.Author, error) {
 	return author, nil
 }
 
-func (c *catalogRepo) DeleteAuthorById(in pb.GetAuthorByIdReq) (error) {
+func (c *catalogRepo) DeleteAuthorById(in pb.GetAuthorByIdReq) error {
 	result, err := c.db.Exec(`
 		UPDATE authors
 		SET deleated_at=$1
@@ -98,7 +91,6 @@ func (c *catalogRepo) DeleteAuthorById(in pb.GetAuthorByIdReq) (error) {
 		return sql.ErrNoRows
 	}
 	return nil
-	
 }
 
 func (c *catalogRepo) ListAuthors(in pb.ListAuthorReq) (pb.ListAuthorResp, error) {
@@ -122,11 +114,14 @@ func (c *catalogRepo) ListAuthors(in pb.ListAuthorReq) (pb.ListAuthorResp, error
 	for rows.Next() {
 
 		var author pb.Author
-		rows.Scan(
+		err := rows.Scan(
 			&author.Name,
 			&author.CreatedAt,
 			&author.UpdatedAt,
 		)
+		if err != nil {
+			return pb.ListAuthorResp{}, err
+		}
 		authors.Authors = append(authors.Authors, &author)
 	}
 	return authors, nil

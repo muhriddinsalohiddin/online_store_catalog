@@ -1,7 +1,8 @@
 package config
 
-import(
+import (
 	"os"
+
 	"github.com/spf13/cast"
 )
 

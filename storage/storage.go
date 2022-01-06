@@ -13,13 +13,13 @@ type IStorage interface {
 }
 
 type storagePg struct {
-	db       *sqlx.DB
+	db          *sqlx.DB
 	catalogRepo repo.CatalogStorageI
 }
 
 func NewStoragePg(db *sqlx.DB) *storagePg {
 	return &storagePg{
-		db:       db,
+		db:          db,
 		catalogRepo: postgres.NewCatalogRepo(db),
 	}
 }

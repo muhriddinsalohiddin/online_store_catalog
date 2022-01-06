@@ -15,8 +15,7 @@ func (c *catalogRepo) CreateCategory(in pb.Category) (pb.Category, error) {
 		in.Name,
 		in.ParentId,
 		time.Now().UTC(),
-		time.Now().UTC()).Scan(&in.Id)
-
+		time.Now().UTC()).Err()
 	if err != nil {
 		return pb.Category{}, err
 	}
@@ -27,6 +26,7 @@ func (c *catalogRepo) CreateCategory(in pb.Category) (pb.Category, error) {
 
 	return category, nil
 }
+
 func (c *catalogRepo) UpdateCategory(in pb.Category) (pb.Category, error) {
 	result, err := c.db.Exec(`
 		UPDATE categories
@@ -75,7 +75,7 @@ func (c *catalogRepo) GetCategoryById(in pb.GetCategoryByIdReq) (pb.Category, er
 	return category, nil
 }
 
-func (c *catalogRepo) DeleteCategoryById(in pb.GetCategoryByIdReq) (error) {
+func (c *catalogRepo) DeleteCategoryById(in pb.GetCategoryByIdReq) error {
 	result, err := c.db.Exec(`
 		UPDATE categories
 		SET deleated_at=$1
@@ -91,6 +91,7 @@ func (c *catalogRepo) DeleteCategoryById(in pb.GetCategoryByIdReq) (error) {
 	}
 	return nil
 }
+
 func (c *catalogRepo) ListCategories(in pb.ListCategoryReq) (pb.ListCategoryResp, error) {
 	offset := (in.Page - 1) * in.Limit
 	rows, err := c.db.Query(`
@@ -99,6 +100,7 @@ func (c *catalogRepo) ListCategories(in pb.ListCategoryReq) (pb.ListCategoryResp
 			parent_id,
 			created_at,
 			updated_at
+		FROM categories
 		WHERE deleated_at IS NULL
 		LIMIT $1
 		OFFSET $2`,
@@ -113,13 +115,24 @@ func (c *catalogRepo) ListCategories(in pb.ListCategoryReq) (pb.ListCategoryResp
 	for rows.Next() {
 
 		var category pb.Category
-		rows.Scan(
+		err := rows.Scan(
 			&category.Name,
 			&category.ParentId,
 			&category.CreatedAt,
 			&category.UpdatedAt,
 		)
+		if err != nil {
+			return pb.ListCategoryResp{}, err
+		}
 		categories.Categories = append(categories.Categories, &category)
+	}
+	err = c.db.QueryRow(`
+		SELECT COUNT(*)
+		FROM categories
+		WHERE deleated_at IS NULL`,
+	).Err()
+	if err != nil {
+		return pb.ListCategoryResp{}, err
 	}
 	return categories, nil
 }
