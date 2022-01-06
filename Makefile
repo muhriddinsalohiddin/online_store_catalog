@@ -15,3 +15,6 @@ lint: ## Run golangci-lint with printing to stdout
 
 migration:
 	./scripts/run-migrations.sh	${CURRENT_DIR}
+
+submodule-update:
+	git submodule update --init --recursive --remote
