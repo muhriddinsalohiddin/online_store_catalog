@@ -116,7 +116,7 @@ func (c *catalogRepo) ListCategories(in pb.ListCategoryReq) (pb.ListCategoryResp
 	for rows.Next() {
 
 		var category pb.Category
-		err := rows.Scan(
+		err = rows.Scan(
 			&category.Name,
 			&category.ParentId,
 			&category.CreatedAt,

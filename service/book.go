@@ -29,35 +29,33 @@ func (c *CatalogService) CreateBook(ctx context.Context, in *pb.Book) (*pb.Book,
 
 func (c *CatalogService) UpdateBook(ctx context.Context, in *pb.Book) (*pb.Book, error) {
 	book, err := c.storage.Catalog().UpdateBook(*in)
-
 	if err != nil {
 		c.logger.Error("failed to update Book", logger.Error(err))
 		return nil, status.Error(codes.Internal, "failed to update Book")
 	}
 	return &book, nil
 }
+
 func (c *CatalogService) GetBookById(ctx context.Context, in *pb.GetBookByIdReq) (*pb.Book, error) {
 	book, err := c.storage.Catalog().GetBookById(*in)
-
 	if err != nil {
 		c.logger.Error("failed to get Book", logger.Error(err))
 		return nil, status.Error(codes.Internal, "failed to get Book")
 	}
 	return &book, nil
 }
+
 func (c *CatalogService) DeletedBookById(ctx context.Context, in *pb.GetBookByIdReq) (*pb.EmptyResp, error) {
 	resp, err := c.storage.Catalog().DeletedBookById(*in)
-
 	if err != nil {
 		c.logger.Error("failed to deleate Book", logger.Error(err))
 		return nil, status.Error(codes.Internal, "failed to delete Book")
 	}
 	return &resp, nil
-
 }
+
 func (c *CatalogService) ListBooks(ctx context.Context, in *pb.ListBookReq) (*pb.ListBookResp, error) {
 	books, err := c.storage.Catalog().ListBooks(*in)
-
 	if err != nil {
 		c.logger.Error("failed to list Book", logger.Error(err))
 		return nil, status.Error(codes.Internal, "failed to list Book")
