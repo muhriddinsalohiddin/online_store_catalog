@@ -109,6 +109,7 @@ func (c *catalogRepo) ListAuthors(in pb.ListAuthorReq) (pb.ListAuthorResp, error
 	if err != nil {
 		return pb.ListAuthorResp{}, err
 	}
+	rows.Close()
 	var authors pb.ListAuthorResp
 
 	for rows.Next() {

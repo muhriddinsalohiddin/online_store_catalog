@@ -110,6 +110,7 @@ func (c *catalogRepo) ListCategories(in pb.ListCategoryReq) (pb.ListCategoryResp
 	if err != nil {
 		return pb.ListCategoryResp{}, err
 	}
+	rows.Close()
 	var categories pb.ListCategoryResp
 
 	for rows.Next() {
