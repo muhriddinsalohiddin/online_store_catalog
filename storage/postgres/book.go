@@ -24,7 +24,9 @@ func (c *catalogRepo) CreateBook(in pb.Book) (pb.Book, error) {
 	if err != nil {
 		return pb.Book{}, err
 	}
-	for _, categoryId := range in.CategoryId {
+	categoryIds := utils.ParseFilter(in.CategoryId)
+
+	for _, categoryId := range categoryIds {
 		err = c.db.QueryRow(`
 			INSERT INTO books_categories (book_id, category_id) 
 			VALUES ($1, $2)`,
@@ -114,7 +116,7 @@ func (c *catalogRepo) ListBooks(in pb.ListBookReq) (pb.ListBookResp, error) {
 
 	sb := sqlbuilder.NewSelectBuilder()
 
-	sb.Select("id", "name", "author_id", "created_at", "updated_at")
+	sb.Select("name", "author_id", "created_at", "updated_at")
 	sb.From("books b")
 	if value, ok := in.Filters["category"]; ok && value != "" {
 		args := utils.StringSliceToInterfaceSlice(utils.ParseFilter(value))
@@ -122,7 +124,7 @@ func (c *catalogRepo) ListBooks(in pb.ListBookReq) (pb.ListBookResp, error) {
 		sb.Where(sb.In("bc.category_id", args...))
 	}
 	if value, ok := in.Filters["author"]; ok && value != "" {
-		sb.Where(sb.Equal("author", value))
+		sb.Where(sb.Equal("b.author_id", value))
 	}
 	sb.Limit(int(in.Limit))
 	sb.Offset(int(offset))
@@ -165,11 +167,11 @@ func (c *catalogRepo) ListBooks(in pb.ListBookReq) (pb.ListBookResp, error) {
 	if value, ok := in.Filters["category"]; ok {
 		args = utils.StringSliceToInterfaceSlice(utils.ParseFilter(value))
 		sbc.JoinWithOption("LEFT", "books_categories bc", "b.id=bc.book_id")
-		sbc.Where(sbc.In("bc.book_id", args...))
+		sbc.Where(sbc.In("bc.category_id", args...))
 	}
 
 	if value, ok := in.Filters["author"]; ok {
-		sbc.Where(sbc.Equal("author", value))
+		sbc.Where(sbc.Equal("b.author_id", value))
 	}
 	query, args = sbc.BuildWithFlavor(sqlbuilder.PostgreSQL)
 
@@ -178,5 +180,6 @@ func (c *catalogRepo) ListBooks(in pb.ListBookReq) (pb.ListBookResp, error) {
 		return pb.ListBookResp{}, err
 	}
 
+	// return pb.ListBookResp{Books: books, Count: count}, nil
 	return pb.ListBookResp{Books: books, Count: count}, nil
 }
