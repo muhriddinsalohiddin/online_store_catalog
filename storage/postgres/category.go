@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	pb "github.com/muhriddinsalohiddin/online_store_catalog/genproto/catalog_service"
@@ -69,6 +70,7 @@ func (c *catalogRepo) GetCategoryById(in pb.GetCategoryByIdReq) (pb.Category, er
 		&category.CreatedAt,
 		&category.UpdatedAt,
 	)
+	fmt.Println(category)
 	if err != nil {
 		return pb.Category{}, err
 	}

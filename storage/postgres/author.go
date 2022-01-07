@@ -100,6 +100,7 @@ func (c *catalogRepo) ListAuthors(in pb.ListAuthorReq) (pb.ListAuthorResp, error
 			name,
 			created_at,
 			updated_at
+		FROM authors
 		WHERE deleated_at IS NULL
 		LIMIT $1
 		OFFSET $2`,
@@ -109,7 +110,7 @@ func (c *catalogRepo) ListAuthors(in pb.ListAuthorReq) (pb.ListAuthorResp, error
 	if err != nil {
 		return pb.ListAuthorResp{}, err
 	}
-	rows.Close()
+	defer rows.Close()
 	var authors pb.ListAuthorResp
 
 	for rows.Next() {
@@ -124,6 +125,14 @@ func (c *catalogRepo) ListAuthors(in pb.ListAuthorReq) (pb.ListAuthorResp, error
 			return pb.ListAuthorResp{}, err
 		}
 		authors.Authors = append(authors.Authors, &author)
+	}
+	err = c.db.QueryRow(`
+		SELECT COUNT(*)
+		FROM authors
+		WHERE deleated_at IS NULL`,
+	).Scan(&authors.Count)
+	if err != nil {
+		return pb.ListAuthorResp{},err
 	}
 	return authors, nil
 }
