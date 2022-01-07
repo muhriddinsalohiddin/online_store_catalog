@@ -13,7 +13,7 @@ proto-gen:
 lint: ## Run golangci-lint with printing to stdout
 	golangci-lint -c .golangci.yaml run --build-tags "musl" ./...
 
-migration:
+migrate-db:
 	./scripts/run-migrations.sh	${CURRENT_DIR}
 
 submodule-update:
