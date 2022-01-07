@@ -26,8 +26,5 @@ CREATE TABLE categories (
 
 CREATE TABLE books_categories (
 	book_id VARCHAR(64) REFERENCES books (id),
-	category_id VARCHAR(64) REFERENCES categories (id),
-	created_at timestamp,
-	updated_at timestamp,
-	deleated_at timestamp
+	category_id VARCHAR(64) REFERENCES categories (id)
 );
