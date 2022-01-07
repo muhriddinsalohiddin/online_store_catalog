@@ -178,6 +178,5 @@ func (c *catalogRepo) ListBooks(in pb.ListBookReq) (pb.ListBookResp, error) {
 		return pb.ListBookResp{}, err
 	}
 
-	// return pb.ListBookResp{Books: books, Count: count}, nil
 	return pb.ListBookResp{Books: books, Count: count}, nil
 }

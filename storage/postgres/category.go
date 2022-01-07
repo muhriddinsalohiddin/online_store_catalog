@@ -110,7 +110,7 @@ func (c *catalogRepo) ListCategories(in pb.ListCategoryReq) (pb.ListCategoryResp
 	if err != nil {
 		return pb.ListCategoryResp{}, err
 	}
-	rows.Close()
+	defer rows.Close()
 	var categories pb.ListCategoryResp
 
 	for rows.Next() {
@@ -131,7 +131,7 @@ func (c *catalogRepo) ListCategories(in pb.ListCategoryReq) (pb.ListCategoryResp
 		SELECT COUNT(*)
 		FROM categories
 		WHERE deleated_at IS NULL`,
-	).Err()
+	).Scan(&categories.Count)
 	if err != nil {
 		return pb.ListCategoryResp{}, err
 	}
