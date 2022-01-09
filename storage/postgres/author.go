@@ -116,7 +116,7 @@ func (c *catalogRepo) ListAuthors(in pb.ListAuthorReq) (pb.ListAuthorResp, error
 	for rows.Next() {
 
 		var author pb.Author
-		err := rows.Scan(
+		err = rows.Scan(
 			&author.Name,
 			&author.CreatedAt,
 			&author.UpdatedAt,
@@ -132,7 +132,7 @@ func (c *catalogRepo) ListAuthors(in pb.ListAuthorReq) (pb.ListAuthorResp, error
 		WHERE deleated_at IS NULL`,
 	).Scan(&authors.Count)
 	if err != nil {
-		return pb.ListAuthorResp{},err
+		return pb.ListAuthorResp{}, err
 	}
 	return authors, nil
 }
