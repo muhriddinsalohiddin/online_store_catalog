@@ -74,14 +74,15 @@ func (c *catalogRepo) UpdateBook(in pb.Book) (pb.Book, error) {
 func (c *catalogRepo) GetBookById(in pb.GetBookByIdReq) (pb.Book, error) {
 	var book pb.Book
 	err := c.db.QueryRow(`
-		SELECT
-			name,
-			author_id,
-			created_at,
-			updated_at
-		FROM books
-		WHERE id = $1
-		AND deleated_at IS NULL`,
+		SELECT 
+			b.name,
+			a.name,
+			b.created_at,
+			b.updated_at
+		FROM books as b
+		JOIN authors as a on a.id = b.author_id
+		WHERE b.id = $1
+		AND b.deleated_at IS NULL`,
 		in.Id).Scan(
 		&book.Name,
 		&book.AuthorId,
@@ -117,7 +118,7 @@ func (c *catalogRepo) ListBooks(in pb.ListBookReq) (pb.ListBookResp, error) {
 
 	sb := sqlbuilder.NewSelectBuilder()
 
-	sb.Select("name", "author_id", "created_at", "updated_at")
+	sb.Select("b.name", "a.name author_name", "b.created_at", "b.updated_at")
 	sb.From("books b")
 	if value, ok := in.Filters["category"]; ok && value != "" {
 		args := utils.StringSliceToInterfaceSlice(utils.ParseFilter(value))
@@ -125,11 +126,11 @@ func (c *catalogRepo) ListBooks(in pb.ListBookReq) (pb.ListBookResp, error) {
 		sb.Where(sb.In("bc.category_id", args...))
 	}
 	if value, ok := in.Filters["author"]; ok && value != "" {
+		sb.JoinWithOption("LEFT", "authors a", "b.author_id=a.id")
 		sb.Where(sb.Equal("b.author_id", value))
 	}
 	sb.Limit(int(in.Limit))
 	sb.Offset(int(offset))
-
 	query, args := sb.BuildWithFlavor(sqlbuilder.PostgreSQL)
 
 	rows, err := c.db.Queryx(query, args...)

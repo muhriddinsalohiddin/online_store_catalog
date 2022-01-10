@@ -2,21 +2,31 @@ package postgres
 
 import (
 	"database/sql"
-	"fmt"
 	"time"
 
 	pb "github.com/muhriddinsalohiddin/online_store_catalog/genproto/catalog_service"
 )
 
 func (c *catalogRepo) CreateCategory(in pb.Category) (pb.Category, error) {
-	err := c.db.QueryRow(`
-	INSERT INTO categories (id, name, parent_id, created_at, updated_at)
-	VALUES ($1,$2,$3,$4,$5)`,
-		in.Id,
-		in.Name,
-		in.ParentId,
-		time.Now().UTC(),
-		time.Now().UTC()).Err()
+	var err error
+	if in.ParentId != "" {
+		err = c.db.QueryRow(`
+		INSERT INTO categories (id, name, parent_id, created_at, updated_at)
+		VALUES ($1,$2,$3,$4,$5)`,
+			in.Id,
+			in.Name,
+			in.ParentId,
+			time.Now().UTC(),
+			time.Now().UTC()).Err()
+	} else {
+		err = c.db.QueryRow(`
+		INSERT INTO categories (id, name, created_at, updated_at)
+		VALUES ($1,$2,$3,$4)`,
+			in.Id,
+			in.Name,
+			time.Now().UTC(),
+			time.Now().UTC()).Err()
+	}
 	if err != nil {
 		return pb.Category{}, err
 	}
@@ -55,6 +65,7 @@ func (c *catalogRepo) UpdateCategory(in pb.Category) (pb.Category, error) {
 
 func (c *catalogRepo) GetCategoryById(in pb.GetCategoryByIdReq) (pb.Category, error) {
 	var category pb.Category
+	var parent_id sql.NullString
 	err := c.db.QueryRow(`
 		SELECT
 			name,
@@ -62,15 +73,16 @@ func (c *catalogRepo) GetCategoryById(in pb.GetCategoryByIdReq) (pb.Category, er
 			created_at,
 			updated_at
 		FROM categories
-		WHERE id = $1
-		AND deleated_at IS NULL`,
+		WHERE id = $1 AND deleated_at IS NULL`,
 		in.Id).Scan(
 		&category.Name,
-		&category.ParentId,
+		&parent_id,
 		&category.CreatedAt,
 		&category.UpdatedAt,
 	)
-	fmt.Println(category)
+	if parent_id.Valid {
+		category.ParentId = parent_id.String
+	}
 	if err != nil {
 		return pb.Category{}, err
 	}
