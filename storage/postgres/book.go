@@ -119,7 +119,6 @@ func (c *catalogRepo) GetBookById(in pb.GetBookByIdReq) (pb.Book, error) {
 		&book.CreatedAt,
 		&book.UpdatedAt,
 	)
-	
 	if err != nil {
 		return pb.Book{}, err
 	}
