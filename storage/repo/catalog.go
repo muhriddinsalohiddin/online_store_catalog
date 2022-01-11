@@ -11,10 +11,9 @@ type BookStorageI interface {
 	GetBookById(pb.GetBookByIdReq) (pb.Book, error)
 	DeletedBookById(pb.GetBookByIdReq) (pb.EmptyResp, error)
 	ListBooks(pb.ListBookReq) (pb.ListBookResp, error)
-
 }
 
-//CategoryStorageI
+// CategoryStorageI
 type CategoryStorageI interface {
 	CreateCategory(pb.Category) (pb.Category, error)
 	UpdateCategory(pb.Category) (pb.Category, error)
@@ -22,11 +21,12 @@ type CategoryStorageI interface {
 	DeleteCategoryById(pb.GetCategoryByIdReq) error
 	ListCategories(pb.ListCategoryReq) (pb.ListCategoryResp, error)
 }
+
 // AuthorStorageI
 type AuthorStorageI interface {
-		CreateAuthor(pb.Author) (pb.Author, error)
-		UpdateAuthor(pb.Author) (pb.Author, error)
-		GetAuthorById(pb.GetAuthorByIdReq) (pb.Author, error)
-		DeleteAuthorById(pb.GetAuthorByIdReq) error
-		ListAuthors(pb.ListAuthorReq) (pb.ListAuthorResp, error)
+	CreateAuthor(pb.Author) (pb.Author, error)
+	UpdateAuthor(pb.Author) (pb.Author, error)
+	GetAuthorById(pb.GetAuthorByIdReq) (pb.Author, error)
+	DeleteAuthorById(pb.GetAuthorByIdReq) error
+	ListAuthors(pb.ListAuthorReq) (pb.ListAuthorResp, error)
 }

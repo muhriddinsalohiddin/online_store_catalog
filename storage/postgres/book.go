@@ -65,7 +65,7 @@ func (c *catalogRepo) UpdateBook(in pb.Book) (pb.Book, error) {
 	}
 
 	for _, categoryId := range in.CategoryId {
-		result, err := c.db.Exec(`
+		result, err = c.db.Exec(`
 			UPDATE books_categories
 			SET category_id=$1
 			WHERE id = $2`,

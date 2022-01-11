@@ -65,7 +65,7 @@ func (c *catalogRepo) GetAuthorById(in pb.GetAuthorByIdReq) (pb.Author, error) {
 		WHERE id = $1
 		AND deleated_at IS NULL`,
 		in.Id).Scan(
-		&author.Id,	
+		&author.Id,
 		&author.Name,
 		&author.CreatedAt,
 		&author.UpdatedAt,

@@ -15,27 +15,29 @@ type IStorage interface {
 }
 
 type storagePg struct {
-	db          *sqlx.DB
-	bookRepo repo.BookStorageI
+	db           *sqlx.DB
+	bookRepo     repo.BookStorageI
 	categoryRepo repo.CategoryStorageI
-	authorRepo repo.AuthorStorageI
+	authorRepo   repo.AuthorStorageI
 }
 
 func NewStoragePg(db *sqlx.DB) *storagePg {
 	return &storagePg{
-		db:          db,
-		bookRepo: postgres.NewCatalogRepo(db),
+		db:           db,
+		bookRepo:     postgres.NewCatalogRepo(db),
 		categoryRepo: postgres.NewCatalogRepo(db),
-		authorRepo: postgres.NewCatalogRepo(db),
+		authorRepo:   postgres.NewCatalogRepo(db),
 	}
 }
 
 func (s storagePg) Book() repo.BookStorageI {
 	return s.bookRepo
 }
+
 func (s storagePg) Category() repo.CategoryStorageI {
 	return s.categoryRepo
 }
+
 func (s storagePg) Author() repo.AuthorStorageI {
 	return s.authorRepo
 }
