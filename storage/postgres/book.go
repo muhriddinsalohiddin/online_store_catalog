@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/huandu/go-sqlbuilder"
@@ -49,7 +50,7 @@ func (c *catalogRepo) UpdateBook(in pb.Book) (pb.Book, error) {
 	result, err := c.db.Exec(`
 		UPDATE books
 		SET name=$1,
-			author_id = $2
+			author_id = $2,
 			updated_at=$3
 		WHERE id = $4`,
 		in.Name,
@@ -63,24 +64,32 @@ func (c *catalogRepo) UpdateBook(in pb.Book) (pb.Book, error) {
 	if i, _ := result.RowsAffected(); i == 0 {
 		return pb.Book{}, sql.ErrNoRows
 	}
-
+	err = c.db.QueryRow(`
+		DELETE 
+		FROM books_categories
+		WHERE book_id = $1`,
+		in.Id,
+	).Err()
+	if err != nil {
+		return pb.Book{}, err
+	}
+	if i, _ := result.RowsAffected(); i == 0 {
+		return pb.Book{}, sql.ErrNoRows
+	}
 	for _, categoryId := range in.CategoryId {
-		result, err = c.db.Exec(`
-			UPDATE books_categories
-			SET category_id=$1
-			WHERE id = $2`,
-			categoryId,
+		err = c.db.QueryRow(`
+			INSERT INTO books_categories (book_id, category_id) 
+			VALUES ($1, $2)`,
 			in.Id,
-		)
+			categoryId,
+		).Err()
 		if err != nil {
 			return pb.Book{}, err
 		}
-		if i, _ := result.RowsAffected(); i == 0 {
-			return pb.Book{}, sql.ErrNoRows
-		}
-
 	}
+
 	book, err := c.GetBookById(pb.GetBookByIdReq{Id: in.Id})
+	fmt.Println(book, err)
 	if err != nil {
 		return pb.Book{}, err
 	}
@@ -88,7 +97,10 @@ func (c *catalogRepo) UpdateBook(in pb.Book) (pb.Book, error) {
 }
 
 func (c *catalogRepo) GetBookById(in pb.GetBookByIdReq) (pb.Book, error) {
-	var book pb.Book
+	var (
+		book       pb.Book
+		categories []string
+	)
 	err := c.db.QueryRow(`
 		SELECT
 			b.id, 
@@ -110,7 +122,32 @@ func (c *catalogRepo) GetBookById(in pb.GetBookByIdReq) (pb.Book, error) {
 	if err != nil {
 		return pb.Book{}, err
 	}
+	rows, err := c.db.Query(`
+		SELECT
+			category_id
+		FROM books_categories
+		WHERE book_id = $1`,
+		book.Id,
+	)
+	if err != nil {
+		return pb.Book{}, err
+	}
+	if err = rows.Err(); err != nil {
+		return pb.Book{}, err
+	}
+	defer rows.Close()
 
+	for rows.Next() {
+		var category string
+		err = rows.Scan(
+			&category,
+		)
+		if err != nil {
+			return pb.Book{}, nil
+		}
+		categories = append(categories, category)
+	}
+	book.CategoryId = categories
 	return book, nil
 }
 
