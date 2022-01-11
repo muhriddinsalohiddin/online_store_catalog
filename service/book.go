@@ -19,7 +19,7 @@ func (c *CatalogService) CreateBook(ctx context.Context, in *pb.Book) (*pb.Book,
 	}
 	in.Id = id.String()
 
-	book, err := c.storage.Catalog().CreateBook(*in)
+	book, err := c.storage.Book().CreateBook(*in)
 	if err != nil {
 		c.logger.Error("failed to create Book", logger.Error(err))
 		return nil, status.Error(codes.Internal, "failed to create Book")
@@ -28,7 +28,7 @@ func (c *CatalogService) CreateBook(ctx context.Context, in *pb.Book) (*pb.Book,
 }
 
 func (c *CatalogService) UpdateBook(ctx context.Context, in *pb.Book) (*pb.Book, error) {
-	book, err := c.storage.Catalog().UpdateBook(*in)
+	book, err := c.storage.Book().UpdateBook(*in)
 	if err != nil {
 		c.logger.Error("failed to update Book", logger.Error(err))
 		return nil, status.Error(codes.Internal, "failed to update Book")
@@ -37,7 +37,7 @@ func (c *CatalogService) UpdateBook(ctx context.Context, in *pb.Book) (*pb.Book,
 }
 
 func (c *CatalogService) GetBookById(ctx context.Context, in *pb.GetBookByIdReq) (*pb.Book, error) {
-	book, err := c.storage.Catalog().GetBookById(*in)
+	book, err := c.storage.Book().GetBookById(*in)
 	if err != nil {
 		c.logger.Error("failed to get Book", logger.Error(err))
 		return nil, status.Error(codes.Internal, "failed to get Book")
@@ -46,7 +46,7 @@ func (c *CatalogService) GetBookById(ctx context.Context, in *pb.GetBookByIdReq)
 }
 
 func (c *CatalogService) DeletedBookById(ctx context.Context, in *pb.GetBookByIdReq) (*pb.EmptyResp, error) {
-	resp, err := c.storage.Catalog().DeletedBookById(*in)
+	resp, err := c.storage.Book().DeletedBookById(*in)
 	if err != nil {
 		c.logger.Error("failed to deleate Book", logger.Error(err))
 		return nil, status.Error(codes.Internal, "failed to delete Book")
@@ -55,7 +55,7 @@ func (c *CatalogService) DeletedBookById(ctx context.Context, in *pb.GetBookById
 }
 
 func (c *CatalogService) ListBooks(ctx context.Context, in *pb.ListBookReq) (*pb.ListBookResp, error) {
-	books, err := c.storage.Catalog().ListBooks(*in)
+	books, err := c.storage.Book().ListBooks(*in)
 	if err != nil {
 		c.logger.Error("failed to list Book", logger.Error(err))
 		return nil, status.Error(codes.Internal, "failed to list Book")
