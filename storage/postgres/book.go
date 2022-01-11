@@ -25,9 +25,8 @@ func (c *catalogRepo) CreateBook(in pb.Book) (pb.Book, error) {
 	if err != nil {
 		return pb.Book{}, err
 	}
-	categoryIds := utils.ParseFilter(in.CategoryId)
 
-	for _, categoryId := range categoryIds {
+	for _, categoryId := range in.CategoryId {
 		err = c.db.QueryRow(`
 			INSERT INTO books_categories (book_id, category_id) 
 			VALUES ($1, $2)`,
@@ -64,6 +63,23 @@ func (c *catalogRepo) UpdateBook(in pb.Book) (pb.Book, error) {
 	if i, _ := result.RowsAffected(); i == 0 {
 		return pb.Book{}, sql.ErrNoRows
 	}
+
+	for _, categoryId := range in.CategoryId {
+		result, err := c.db.Exec(`
+			UPDATE books_categories
+			SET category_id=$1
+			WHERE id = $2`,
+			categoryId,
+			in.Id,
+		)
+		if err != nil {
+			return pb.Book{}, err
+		}
+		if i, _ := result.RowsAffected(); i == 0 {
+			return pb.Book{}, sql.ErrNoRows
+		}
+
+	}
 	book, err := c.GetBookById(pb.GetBookByIdReq{Id: in.Id})
 	if err != nil {
 		return pb.Book{}, err
@@ -74,7 +90,8 @@ func (c *catalogRepo) UpdateBook(in pb.Book) (pb.Book, error) {
 func (c *catalogRepo) GetBookById(in pb.GetBookByIdReq) (pb.Book, error) {
 	var book pb.Book
 	err := c.db.QueryRow(`
-		SELECT 
+		SELECT
+			b.id, 
 			b.name,
 			a.name,
 			b.created_at,
@@ -84,6 +101,7 @@ func (c *catalogRepo) GetBookById(in pb.GetBookByIdReq) (pb.Book, error) {
 		WHERE b.id = $1
 		AND b.deleated_at IS NULL`,
 		in.Id).Scan(
+		&book.Id,
 		&book.Name,
 		&book.AuthorId,
 		&book.CreatedAt,
@@ -118,7 +136,7 @@ func (c *catalogRepo) ListBooks(in pb.ListBookReq) (pb.ListBookResp, error) {
 
 	sb := sqlbuilder.NewSelectBuilder()
 
-	sb.Select("b.name", "a.name author_name", "b.created_at", "b.updated_at")
+	sb.Select("b.id", "b.name", "a.name author_name", "b.created_at", "b.updated_at")
 	sb.From("books b")
 	if value, ok := in.Filters["category"]; ok && value != "" {
 		args := utils.StringSliceToInterfaceSlice(utils.ParseFilter(value))
@@ -151,6 +169,7 @@ func (c *catalogRepo) ListBooks(in pb.ListBookReq) (pb.ListBookResp, error) {
 
 		var book pb.Book
 		err = rows.Scan(
+			&book.Id,
 			&book.Name,
 			&book.AuthorId,
 			&book.CreatedAt,
@@ -181,7 +200,5 @@ func (c *catalogRepo) ListBooks(in pb.ListBookReq) (pb.ListBookResp, error) {
 	if err != nil {
 		return pb.ListBookResp{}, err
 	}
-
-	// return pb.ListBookResp{Books: books, Count: count}, nil
 	return pb.ListBookResp{Books: books, Count: count}, nil
 }
