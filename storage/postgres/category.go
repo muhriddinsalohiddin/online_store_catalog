@@ -8,25 +8,19 @@ import (
 )
 
 func (c *catalogRepo) CreateCategory(in pb.Category) (pb.Category, error) {
-	var err error
+	var parentId sql.NullString
 	if in.ParentId != "" {
-		err = c.db.QueryRow(`
-		INSERT INTO categories (id, name, parent_id, created_at, updated_at)
-		VALUES ($1,$2,$3,$4,$5)`,
-			in.Id,
-			in.Name,
-			in.ParentId,
-			time.Now().UTC(),
-			time.Now().UTC()).Err()
-	} else {
-		err = c.db.QueryRow(`
-		INSERT INTO categories (id, name, created_at, updated_at)
-		VALUES ($1,$2,$3,$4)`,
-			in.Id,
-			in.Name,
-			time.Now().UTC(),
-			time.Now().UTC()).Err()
+		parentId.Valid = true
+		parentId.String = in.ParentId
 	}
+	err := c.db.QueryRow(`
+	INSERT INTO categories (id, name, parent_id, created_at, updated_at)
+	VALUES ($1,$2,$3,$4,$5)`,
+		in.Id,
+		in.Name,
+		parentId,
+		time.Now().UTC(),
+		time.Now().UTC()).Err()
 	if err != nil {
 		return pb.Category{}, err
 	}
@@ -39,6 +33,11 @@ func (c *catalogRepo) CreateCategory(in pb.Category) (pb.Category, error) {
 }
 
 func (c *catalogRepo) UpdateCategory(in pb.Category) (pb.Category, error) {
+	var parentId sql.NullString
+	if in.ParentId != "" {
+		parentId.Valid = true
+		parentId.String = in.ParentId
+	}
 	result, err := c.db.Exec(`
 		UPDATE categories
 		SET name=$1,
@@ -46,7 +45,7 @@ func (c *catalogRepo) UpdateCategory(in pb.Category) (pb.Category, error) {
 			updated_at=$3
 		WHERE id = $4`,
 		in.Name,
-		in.ParentId,
+		parentId,
 		time.Now().UTC(),
 		in.Id,
 	)
@@ -64,10 +63,13 @@ func (c *catalogRepo) UpdateCategory(in pb.Category) (pb.Category, error) {
 }
 
 func (c *catalogRepo) GetCategoryById(in pb.GetCategoryByIdReq) (pb.Category, error) {
-	var category pb.Category
-	var parent_id sql.NullString
+	var (
+		category  pb.Category
+		parent_id sql.NullString
+	)
 	err := c.db.QueryRow(`
 		SELECT
+			id,
 			name,
 			parent_id,
 			created_at,
@@ -75,6 +77,7 @@ func (c *catalogRepo) GetCategoryById(in pb.GetCategoryByIdReq) (pb.Category, er
 		FROM categories
 		WHERE id = $1 AND deleated_at IS NULL`,
 		in.Id).Scan(
+		&category.Id,
 		&category.Name,
 		&parent_id,
 		&category.CreatedAt,
@@ -108,8 +111,10 @@ func (c *catalogRepo) DeleteCategoryById(in pb.GetCategoryByIdReq) error {
 
 func (c *catalogRepo) ListCategories(in pb.ListCategoryReq) (pb.ListCategoryResp, error) {
 	offset := (in.Page - 1) * in.Limit
+
 	rows, err := c.db.Query(`
 		SELECT
+			id,
 			name,
 			parent_id,
 			created_at,
@@ -128,16 +133,23 @@ func (c *catalogRepo) ListCategories(in pb.ListCategoryReq) (pb.ListCategoryResp
 	var categories pb.ListCategoryResp
 
 	for rows.Next() {
+		var (
+			parentId sql.NullString
+			category pb.Category
+		)
 
-		var category pb.Category
 		err = rows.Scan(
+			&category.Id,
 			&category.Name,
-			&category.ParentId,
+			&parentId,
 			&category.CreatedAt,
 			&category.UpdatedAt,
 		)
 		if err != nil {
 			return pb.ListCategoryResp{}, err
+		}
+		if parentId.Valid {
+			category.ParentId = parentId.String
 		}
 		categories.Categories = append(categories.Categories, &category)
 	}

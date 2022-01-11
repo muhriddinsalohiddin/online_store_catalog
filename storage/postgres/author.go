@@ -10,11 +10,11 @@ import (
 func (c *catalogRepo) CreateAuthor(in pb.Author) (pb.Author, error) {
 	err := c.db.QueryRow(`
 		INSERT INTO authors (id, name, created_at, updated_at)
-		VALUES ($1,$2,$3,$4) RETURNING id`,
+		VALUES ($1,$2,$3,$4)`,
 		in.Id,
 		in.Name,
 		time.Now().UTC(),
-		time.Now().UTC()).Scan(&in.Id)
+		time.Now().UTC()).Err()
 	if err != nil {
 		return pb.Author{}, err
 	}
@@ -56,7 +56,8 @@ func (c *catalogRepo) GetAuthorById(in pb.GetAuthorByIdReq) (pb.Author, error) {
 	var author pb.Author
 
 	err := c.db.QueryRow(`
-		SELECT 
+		SELECT
+			id,
 			name,
 			created_at,
 			updated_at
@@ -64,6 +65,7 @@ func (c *catalogRepo) GetAuthorById(in pb.GetAuthorByIdReq) (pb.Author, error) {
 		WHERE id = $1
 		AND deleated_at IS NULL`,
 		in.Id).Scan(
+		&author.Id,	
 		&author.Name,
 		&author.CreatedAt,
 		&author.UpdatedAt,
@@ -97,6 +99,7 @@ func (c *catalogRepo) ListAuthors(in pb.ListAuthorReq) (pb.ListAuthorResp, error
 	offset := (in.Page - 1) * in.Limit
 	rows, err := c.db.Query(`
 		SELECT
+			id,
 			name,
 			created_at,
 			updated_at
@@ -117,6 +120,7 @@ func (c *catalogRepo) ListAuthors(in pb.ListAuthorReq) (pb.ListAuthorResp, error
 
 		var author pb.Author
 		err = rows.Scan(
+			&author.Id,
 			&author.Name,
 			&author.CreatedAt,
 			&author.UpdatedAt,
