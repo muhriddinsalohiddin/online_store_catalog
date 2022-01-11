@@ -19,7 +19,7 @@ func (c *CatalogService) CreateAuthor(ctx context.Context, in *pb.Author) (*pb.A
 	}
 	in.Id = id.String()
 
-	author, err := c.storage.Catalog().CreateAuthor(*in)
+	author, err := c.storage.Author().CreateAuthor(*in)
 	if err != nil {
 		c.logger.Error("failed to create author", logger.Error(err))
 		return nil, status.Error(codes.Internal, "failed to create author")
@@ -28,7 +28,7 @@ func (c *CatalogService) CreateAuthor(ctx context.Context, in *pb.Author) (*pb.A
 }
 
 func (c *CatalogService) UpdateAuthor(ctx context.Context, in *pb.Author) (*pb.Author, error) {
-	author, err := c.storage.Catalog().UpdateAuthor(*in)
+	author, err := c.storage.Author().UpdateAuthor(*in)
 	if err != nil {
 		c.logger.Error("failed to update author", logger.Error(err))
 		return nil, status.Error(codes.Internal, "failed to update author")
@@ -37,7 +37,7 @@ func (c *CatalogService) UpdateAuthor(ctx context.Context, in *pb.Author) (*pb.A
 }
 
 func (c *CatalogService) GetAuthorById(ctx context.Context, in *pb.GetAuthorByIdReq) (*pb.Author, error) {
-	author, err := c.storage.Catalog().GetAuthorById(*in)
+	author, err := c.storage.Author().GetAuthorById(*in)
 	if err != nil {
 		c.logger.Error("failed to get author", logger.Error(err))
 		return nil, status.Error(codes.Internal, "failed to get author")
@@ -46,7 +46,7 @@ func (c *CatalogService) GetAuthorById(ctx context.Context, in *pb.GetAuthorById
 }
 
 func (c *CatalogService) DeleteAuthorById(ctx context.Context, in *pb.GetAuthorByIdReq) (*pb.EmptyResp, error) {
-	err := c.storage.Catalog().DeleteAuthorById(*in)
+	err := c.storage.Author().DeleteAuthorById(*in)
 	if err != nil {
 		c.logger.Error("failed to deleate author", logger.Error(err))
 		return nil, status.Error(codes.Internal, "failed to delete author")
@@ -55,7 +55,7 @@ func (c *CatalogService) DeleteAuthorById(ctx context.Context, in *pb.GetAuthorB
 }
 
 func (c *CatalogService) ListAuthors(ctx context.Context, in *pb.ListAuthorReq) (*pb.ListAuthorResp, error) {
-	authors, err := c.storage.Catalog().ListAuthors(*in)
+	authors, err := c.storage.Author().ListAuthors(*in)
 	if err != nil {
 		c.logger.Error("failed to list author", logger.Error(err))
 		return nil, status.Error(codes.Internal, "failed to list author")

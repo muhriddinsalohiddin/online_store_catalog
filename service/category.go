@@ -19,7 +19,7 @@ func (c *CatalogService) CreateCategory(ctx context.Context, in *pb.Category) (*
 	}
 	in.Id = id.String()
 
-	category, err := c.storage.Catalog().CreateCategory(*in)
+	category, err := c.storage.Category().CreateCategory(*in)
 	if err != nil {
 		c.logger.Error("failed to create category", logger.Error(err))
 		return nil, status.Error(codes.Internal, "failed to create category")
@@ -28,7 +28,7 @@ func (c *CatalogService) CreateCategory(ctx context.Context, in *pb.Category) (*
 }
 
 func (c *CatalogService) UpdateCategory(ctx context.Context, in *pb.Category) (*pb.Category, error) {
-	category, err := c.storage.Catalog().UpdateCategory(*in)
+	category, err := c.storage.Category().UpdateCategory(*in)
 	if err != nil {
 		c.logger.Error("failed to update category", logger.Error(err))
 		return nil, status.Error(codes.Internal, "failed to update category")
@@ -37,7 +37,7 @@ func (c *CatalogService) UpdateCategory(ctx context.Context, in *pb.Category) (*
 }
 
 func (c *CatalogService) GetCategoryById(ctx context.Context, in *pb.GetCategoryByIdReq) (*pb.Category, error) {
-	category, err := c.storage.Catalog().GetCategoryById(*in)
+	category, err := c.storage.Category().GetCategoryById(*in)
 	if err != nil {
 		c.logger.Error("failed to get category", logger.Error(err))
 		return nil, status.Error(codes.Internal, "failed to get category")
@@ -46,7 +46,7 @@ func (c *CatalogService) GetCategoryById(ctx context.Context, in *pb.GetCategory
 }
 
 func (c *CatalogService) DeleteCategoryById(ctx context.Context, in *pb.GetCategoryByIdReq) (*pb.EmptyResp, error) {
-	err := c.storage.Catalog().DeleteCategoryById(*in)
+	err := c.storage.Category().DeleteCategoryById(*in)
 	if err != nil {
 		c.logger.Error("failed to deleate category", logger.Error(err))
 		return nil, status.Error(codes.Internal, "failed to delete category")
@@ -55,7 +55,7 @@ func (c *CatalogService) DeleteCategoryById(ctx context.Context, in *pb.GetCateg
 }
 
 func (c *CatalogService) ListCategories(ctx context.Context, in *pb.ListCategoryReq) (*pb.ListCategoryResp, error) {
-	categories, err := c.storage.Catalog().ListCategories(*in)
+	categories, err := c.storage.Category().ListCategories(*in)
 	if err != nil {
 		c.logger.Error("failed to list category", logger.Error(err))
 		return nil, status.Error(codes.Internal, "failed to list category")
